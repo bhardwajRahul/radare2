@@ -168,6 +168,7 @@ static const RCoreHelpMessage help_msg_dash = {
 	"", "'-' '.-' '. -'", " those three commands do the same",
 	"-", "8", "same as s-8, but shorter to type (see +? command)",
 	"-a", " x86", "same as r2 -a x86 or e asm.arch=x86",
+	"-A", "[?]", "same as r2 -A or aaa",
 	"-b", " 32", "same as e or r2 -e",
 	"-c", " cpu", "same as r2 -e asm.cpu=",
 	"-e", " k=v", "same as r2 -b or e asm.bits",
@@ -249,8 +250,8 @@ static const RCoreHelpMessage help_msg_equal = {
 	"=t", "port", "start the tcp server (echo x|nc ::1 9090 or curl ::1:9090/cmd/x)",
 	"=r", "port", "start the rap server (o rap://9999)",
 	"=g", "[?]", "start the gdbserver",
-	"=h", "[?]", "start the http webserver",
-	"=H", "[?]", "start the http webserver (and launch the web browser)",
+	"=h", " port", "start the http webserver on 'port'",
+	"=H", " port", "start the http webserver on 'port' (launch browser)",
 	"\nother:", "", "",
 	"=&", ":port", "start rap server in background (same as '&_=h')",
 	"=", ":host:port cmd", "run 'cmd' command on remote server",
@@ -270,9 +271,9 @@ static const RCoreHelpMessage help_msg_equalh = {
 	"=h-", "", "stop background webserver",
 	"=h--", "", "stop foreground webserver",
 	"=h*", "", "restart current webserver",
-	"=h&", " port", "start http server in background",
-	"=H", " port", "launch browser and listen for http",
-	"=H&", " port", "launch browser and listen for http in background",
+	"=h&", " port", "start http server on 'port' in background",
+	"=H", " port", "start http server on 'port' (launch browser)",
+	"=H&", " port", "start http server on 'port' in background (launch browser)",
 	NULL
 };
 
@@ -2071,6 +2072,21 @@ static int cmd_stdin(void *data, const char *input) {
 				r_core_cmdf (core, "e %s", arg);
 			}
 			break;
+		case 'A': // -A
+			if (*arg == '?') {
+				r_core_cmd_call (core, "aaa?");
+			} else {
+				if (R_STR_ISEMPTY (arg)) {
+					r_core_cmd_call (core, "aaa");
+				} else if (!strcmp (arg, "A")) {
+					r_core_cmd_call (core, "aaaa");
+				} else if (!strcmp (arg, "AA")) {
+					r_core_cmd_call (core, "aaaaa");
+				} else {
+					r_core_cmd_call (core, "aaa?");
+				}
+			}
+			break;
 		default:
 			if (isdigit (*input)) {
 				r_core_cmdf (core, "s-%s", r_str_trim_head_ro (input));
@@ -3632,7 +3648,7 @@ static int cmd_system(void *data, const char *input) {
 			cmd_help_exclamation (core);
 		} else if (input[1] == '*') {
 			char *cmd = r_str_trim_dup (input + 1);
-			(void)r_core_cmdf (core, "\"#!pipe %s\"", cmd);
+			(void)r_core_cmdf (core, "'#!pipe %s", cmd);
 			free (cmd);
 		} else {
 			if (input[1]) {
@@ -3678,7 +3694,7 @@ static int cmd_system(void *data, const char *input) {
 			cmd = r_str_replace (cmd, " ", "\\ ", true);
 			cmd = r_str_replace (cmd, "\\ ", " ", false);
 			cmd = r_str_replace (cmd, "\"", "'", false);
-			ret = r_core_cmdf (core, "\"#!pipe %s\"", cmd);
+			ret = r_core_cmdf (core, "'#!pipe %s", cmd);
 			free (cmd);
 		}
 		break;
@@ -6623,7 +6639,7 @@ R_API int r_core_cmd_command(RCore *core, const char *command) {
 R_API char *r_core_disassemble_instr(RCore *core, ut64 addr, int l) {
 	R_RETURN_VAL_IF_FAIL (core, NULL);
 	char *cmd, *ret = NULL;
-	cmd = r_str_newf ("pd %i @ 0x%08"PFMT64x, l, addr);
+	cmd = r_str_newf ("pi %i @ 0x%08"PFMT64x, l, addr);
 	if (cmd) {
 		ret = r_core_cmd_str (core, cmd);
 		free (cmd);

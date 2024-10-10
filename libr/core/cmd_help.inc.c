@@ -93,7 +93,7 @@ static RCoreHelpMessage help_msg_at_at = {
 
 static RCoreHelpMessage help_msg_single_quote = {
 	"'", "# run a command without evaluating any special character", "",
-	"'", "?e hello @ world", "print the given string, including the @ sign and the rest (r2.call)",
+	"'", "?e hello @ world", "print everything after `?e` (r2.call)",
 	"'", "0x123'?v $$", "run the '?v $$' command in the 0x123 offset (same as r2.callAt)",
 	"'", "@entry0'?v $$", "same as '0x but supports non numeric offsets",
 	NULL
@@ -196,11 +196,13 @@ static RCoreHelpMessage help_msg_exclamation = {
 static RCoreHelpMessage help_msg_root = {
 	"%var", "=value", "alias for 'env' command",
 	"\"", "[?][\"..|..\"]", "quote to not evaluate special chars",
+	"'", "[...]", "run a command without evaluating any special chars (see ?')",
 	"*", "[?] off[=[0x]value]", "pointer read/write data/values (see ?v, wx, wv)",
 	"(macro arg0 arg1)",  "", "manage scripting macros",
 	".", "[?] [-|(m)|f|!sh|cmd]", "Define macro or load r2, cparse or rlang file",
 	",", "[?] [/jhr]", "create and query or filter a table with data from file",
 	":", "cmd", "run an io command (same as =!)",
+	"-", "[?]", "open editor and run the r2 commands in the saved document",
 	"_", "[?]", "Print last output",
 	"=", "[?] [cmd]", "submit or listen to remote commands",
 	"<", "[str]", "feed stdin with given escaped string",
