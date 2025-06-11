@@ -1,4 +1,4 @@
-/* radare - LGPL - Copyright 2009-2023 - pancake */
+/* radare - LGPL - Copyright 2009-2025 - pancake */
 
 #include <r_bin.h>
 #include <r_lib.h>
@@ -133,10 +133,6 @@ static void addSymbol(RList *list, char *name, ut64 addr, ut32 size, const char 
 }
 
 static void handleFuncSymbol(RLuaHeader *lh, LuaFunction *func, ParseStruct *parseStruct) {
-	RBinSymbol *binSymbol = R_NEW0 (RBinSymbol);
-	if (!binSymbol) {
-		return;
-	}
 	char *string;
 	if (!func->name_ptr || !func->name_size) {
 		string = r_str_newf ("0x%"PFMT64x, func->offset);
